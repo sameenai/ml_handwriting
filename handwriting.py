@@ -6,6 +6,9 @@ from time import time
 from torchvision import datasets, transforms
 from torch import nn, optim
 from ipywidgets import IntProgress
+from os import path
+
+MODEL_PATH = './init_mnist_model.pt'
 
 def view_classify(img, ps):
     ''' Function for viewing an image and it's predicted classes.'''
@@ -50,14 +53,18 @@ for i in range(1, 64):
 input_size = 28 * 28  # size of image is 28 x 28 and there are 64 of them
 hidden_sizes = [128, 64]  # 2 hidden layers with 128 nodes and 64 nodes
 output_size = 10
-model = nn.Sequential(
-    nn.Linear(input_size, hidden_sizes[0]),
-    nn.ReLU(),
-    nn.Linear(hidden_sizes[0], hidden_sizes[1]),
-    nn.ReLU(),
-    nn.Linear(hidden_sizes[1], output_size),
-    nn.LogSoftmax(dim=1)
-)
+
+if path.exists(MODEL_PATH):
+    model = torch.load(MODEL_PATH)
+else:
+    model = nn.Sequential(
+        nn.Linear(input_size, hidden_sizes[0]),
+        nn.ReLU(),
+        nn.Linear(hidden_sizes[0], hidden_sizes[1]),
+        nn.ReLU(),
+        nn.Linear(hidden_sizes[1], output_size),
+        nn.LogSoftmax(dim=1)
+    )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -85,7 +92,7 @@ print('After backward pass: \n', model[0].weight.grad)
 
 optimizer = optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
 time0 = time()
-epochs = 60
+epochs = 15
 for e in range(epochs):
     running_loss = 0
     for images, labels in trainloader:
@@ -144,6 +151,10 @@ for images, labels in valloader:
         all_count += 1
 
 print("Number Of Images Tested =", all_count)
-print("Model Accuracy =", (correct_count / all_count))
+model_accuracy = correct_count / all_count
+print("Model Accuracy =", model_accuracy)
 
-torch.save(model, './init_mnist_model.pt')
+if model_accuracy > .98:
+    torch.save(model, MODEL_PATH)
+else:
+    print("Model not saving, accuracy regression encountered. Please debug!")
