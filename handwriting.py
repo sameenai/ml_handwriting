@@ -58,8 +58,15 @@ model = nn.Sequential(
     nn.Linear(hidden_sizes[1], output_size),
     nn.LogSoftmax(dim=1)
 )
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
+model.to(device)
+
 print(model)
-criterion = nn.NLLLoss()
+# criterion = nn.NLLLoss()
+criterion = nn.CrossEntropyLoss()
+
 images, labels = next(iter(trainloader))
 print(images.numpy().shape)
 images = images.view(images.shape[0], -1)
@@ -78,7 +85,7 @@ print('After backward pass: \n', model[0].weight.grad)
 
 optimizer = optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
 time0 = time()
-epochs = 15
+epochs = 60
 for e in range(epochs):
     running_loss = 0
     for images, labels in trainloader:
