@@ -1,2 +1,2 @@
 # ml_handwriting
-MNIST Dataset Exploration v0
+MNIST Dataset Exploration v1
