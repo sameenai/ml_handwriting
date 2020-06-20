@@ -28,11 +28,24 @@ def view_classify(img, ps):
 
 
 plt.show(block=True)
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
 
-trainset = datasets.MNIST('data/trainset', download=True, train=True, transform=transform)
+trainset = datasets.MNIST(
+    'data/trainset',
+    download=True,
+    train=True,
+    transform=transform
+)
 
-valset = datasets.MNIST('data/valset', download=True, train=False, transform=transform)
+valset = datasets.MNIST(
+    'data/valset',
+    download=True,
+    train=False,
+    transform=transform
+)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
 valloader = torch.utils.data.DataLoader(valset, batch_size=64, shuffle=True)
